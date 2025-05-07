@@ -9,6 +9,7 @@ import com.askmentor.dto.SatisfactionRequest;
 import com.askmentor.model.Answer;
 import com.askmentor.repository.AnswerRepository;
 
+
 @Service
 public class AnswerServiceImpl implements AnswerService {
     
@@ -45,7 +46,9 @@ public class AnswerServiceImpl implements AnswerService {
         answer.setAnswer(request.getAnswer());                 // 답변 내용 설정
         answer.setSatisfaction(request.getSatisfaction());     // 초기 만족도 설정 (선택 사항)
         answerRepository.save(answer);                         // DB에 저장
+        
         return "답변 등록 성공";
+        
     }
 
     /**

@@ -38,4 +38,27 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         return "질문수 업데이트 성공";
     }
+
+    @Override
+    public String updateAnswerCount(int user_id) {
+        User user = userRepository.findById(user_id).orElseThrow();
+        int answerCount = user.getAnswerCount();
+        answerCount++;
+        user.setAnswerCount(answerCount);
+        userRepository.save(user);
+        return "답변수 업데이트 성공";
+    }
+
+    @Override
+    public String updateSumSatisfaction(int user_id, int satisfaction) {
+        User user = userRepository.findById(user_id).orElseThrow();
+        // 받음
+        int sumSatisfaction = user.getSumSatisfaction();
+        sumSatisfaction += satisfaction;
+        user.setSumSatisfaction(sumSatisfaction);
+        userRepository.save(user);
+        return "평점 합계 업데이트 성공";
+    }
+
+
 }

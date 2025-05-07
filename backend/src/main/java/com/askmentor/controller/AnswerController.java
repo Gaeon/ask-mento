@@ -47,9 +47,15 @@ public class AnswerController {
 
     @Operation(summary = "답변 평점 등록/수정", description = "특정 답변에 대한 만족도를 등록하거나 수정합니다.")
     @PatchMapping("/{answer_id}")
-    public String updateSatisfaction(
+    public ResponseEntity<Map<String, String>> updateSatisfaction(
             @PathVariable int answer_id,
             @RequestBody SatisfactionRequest request) {
-        return answerService.updateSatisfaction(answer_id, request);
+                Answer answer = answerRepository.finById(answer_id).orElseThorw();
+                int userid = answer.getUserId();
+        return ResponseEntity.ok(Map.of(
+            "answer", answerService.updateSatisfaction(answer_id, request),
+            "update", userService.updateSatisfaction(userid, request)
+        )
+        );
     }
 }

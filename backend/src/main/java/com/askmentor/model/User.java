@@ -28,8 +28,8 @@ public class User {
     @Column(name = "answer_count")
     private Integer answerCount;
     
-    @Column(name = "avg_satisfaction")
-    private Float avgSatisfaction;
+    @Column(name = "sum_satisfaction")
+    private Integer sumSatisfaction;
     
     @Column(name = "join_year")
     private LocalDate joinYear;
