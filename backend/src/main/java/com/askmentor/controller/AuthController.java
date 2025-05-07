@@ -4,21 +4,21 @@ import org.springframework.web.bind.annotation.*;
 
 import com.askmentor.dto.LoginRequest;
 import com.askmentor.model.User;
-import com.askmentor.service.UserServiceImpl;
+import com.askmentor.service.UserService;
 
 @RestController
 @RequestMapping("/api")
 public class AuthController {
 
-	private final UserServiceImpl UserServiceImpl;
+	private final UserService userService ;
 
-	public AuthController(UserServiceImpl UserServiceImpl) {
-		this.UserServiceImpl = UserServiceImpl;
+	public AuthController(UserService userService) {
+		this.userService = userService;
 	}
 
 	@PostMapping("/login")
 	public String login(@RequestBody LoginRequest loginRequest) {
-		User user = UserServiceImpl.getUser(loginRequest.getUser_id());
+		User user = userService.getUser(loginRequest.getUser_id());
 		if (user == null) {
 			return "사용자를 찾을 수 없습니다.";
 		}
