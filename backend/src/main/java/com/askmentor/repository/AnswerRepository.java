@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface AnswerRepository extends JpaRepository<Answer, Integer> {
     List<Answer> findByUserId(int user_id);
+    List<Answer> findByQuestionId(int question_id);
 }

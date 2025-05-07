@@ -5,16 +5,20 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.askmentor.dto.QuestionRequest;
+import com.askmentor.model.Answer;
 import com.askmentor.model.Question;
+import com.askmentor.repository.AnswerRepository;
 import com.askmentor.repository.QuestionRepository;
 
 @Service
 public class QuestionServiceImpl implements QuestionService {
     
     private final QuestionRepository questionRepository;
+    private final AnswerRepository answerRepository;
     
-    public QuestionServiceImpl(QuestionRepository questionRepository) {
+    public QuestionServiceImpl(QuestionRepository questionRepository, AnswerRepository answerRepository) {
         this.questionRepository = questionRepository;
+        this.answerRepository = answerRepository;
     }
     
     @Override
@@ -35,5 +39,10 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public Question getQuestionDetail(int question_id) {
         return questionRepository.findById(question_id).orElseThrow();
+    }
+    
+    @Override
+    public List<Answer> getAnswersByQuestionId(int question_id) {
+        return answerRepository.findByQuestionId(question_id);
     }
 }
