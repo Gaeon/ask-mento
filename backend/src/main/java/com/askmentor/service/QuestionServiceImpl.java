@@ -1,10 +1,12 @@
 package com.askmentor.service;
 
-import com.askmentor.model.Question;
-import com.askmentor.controller.QuestionController.QuestionRequest;
-import com.askmentor.repository.QuestionRepository;
-import org.springframework.stereotype.Service;
 import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.askmentor.dto.QuestionRequest;
+import com.askmentor.model.Question;
+import com.askmentor.repository.QuestionRepository;
 
 @Service
 public class QuestionServiceImpl implements QuestionService {

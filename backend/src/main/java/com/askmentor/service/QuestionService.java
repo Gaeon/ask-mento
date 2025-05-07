@@ -1,8 +1,9 @@
 package com.askmentor.service;
 
-import com.askmentor.model.Question;
-import com.askmentor.controller.QuestionController.QuestionRequest;
 import java.util.List;
+
+import com.askmentor.dto.QuestionRequest;
+import com.askmentor.model.Question;
 
 public interface QuestionService {
     List<Question> getUserQuestions(int user_id);

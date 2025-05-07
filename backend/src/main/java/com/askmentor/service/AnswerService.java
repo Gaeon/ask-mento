@@ -1,9 +1,10 @@
 package com.askmentor.service;
 
-import com.askmentor.model.Answer;
-import com.askmentor.controller.AnswerController.AnswerRequest;
-import com.askmentor.controller.AnswerController.SatisfactionRequest;
 import java.util.List;
+
+import com.askmentor.dto.AnswerRequest;
+import com.askmentor.dto.SatisfactionRequest;
+import com.askmentor.model.Answer;
 
 public interface AnswerService {
     List<Answer> getUserAnswers(int user_id);

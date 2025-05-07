@@ -3,7 +3,14 @@ package com.askmentor.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.askmentor.dto.QuestionRequest;
 import com.askmentor.model.Question;
 
 @RestController
@@ -22,39 +29,11 @@ public class QuestionController {
         return "질문 등록 성공";
     }
     
-    @GetMapping("/detail/{question_id}")
+    @GetMapping("/{question_id}")
     public Question getQuestionDetail(@PathVariable int question_id) {
         // 특정 질문 상세 조회 로직 구현
         return new Question();
     }
     
-    public static class QuestionRequest {
-        private int user_id;
-        private String question;
-        private Integer status;
-        
-        public int getUser_id() {
-            return user_id;
-        }
 
-        public void setUser_id(int user_id) {
-            this.user_id = user_id;
-        }
-
-        public String getQuestion() {
-            return question;
-        }
-
-        public void setQuestion(String question) {
-            this.question = question;
-        }
-
-        public Integer getStatus() {
-            return status;
-        }
-
-        public void setStatus(Integer status) {
-            this.status = status;
-        }
-    }
 }
