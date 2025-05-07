@@ -1,0 +1,217 @@
+openapi: 3.0.0
+info:
+  title: 물어멘토 API
+  version: 1.0.0
+  description: 사용자, 부서, 질문, 답변으로 구성된 사내 지식인 시스템의 Swagger OpenAPI 명세서
+
+tags:
+  - name: auth
+    description : 로그인 관련 API
+  - name: user
+    description: 사용자(사번) 관련 API
+  - name: question
+    description: 질문 관련 API
+  - name: answer
+    description: 답변 관련 API
+
+  /login:
+    post:
+      tags: [auth]
+      summary: 로그인
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, password]
+              properties:
+                user_id:
+                  type: integer
+                password:
+                  type: string
+      responses:
+        '200':
+          description: 로그인 성공
+
+paths:
+  /users/{user_id}:
+    get:
+      tags: [user]
+      summary: 사용자 상세 조회
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 사용자 정보 반환
+
+    patch:
+      tags: [user]
+      summary: 사용자 정보 수정
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                password:
+                  type: string
+                department_id:
+                  type: integer
+                join_year:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: 사용자 정보 수정 성공
+
+  /questions/{user_id}:
+    get:
+      tags: [question]
+      summary: 사용자 질문 내역 조회
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 질문 정보 반환
+
+    post:
+      tags: [question]
+      summary: 질문 등록
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, question]
+              properties:
+                user_id:
+                  type: integer
+                question:
+                  type: string
+                status:
+                  type: integer
+      responses:
+        '201':
+          description: 질문 등록 성공
+
+  /questions/{question_id}:
+    get:
+      tags: [question]
+      summary: 특정 질문 상세 조회
+      parameters:
+        - in: path
+          name: question_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 질문 정보 반환
+
+  /answers/{user_id}:
+    get:
+      tags: [answer]
+      summary: 사용자 답변 내역 조회
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 답변 목록 반환
+
+    post:
+      tags: [answer]
+      summary: 답변 등록
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question_id, user_id, answer]
+              properties:
+                question_id:
+                  type: integer
+                user_id:
+                  type: integer
+                answer:
+                  type: string
+                satisfaction:
+                  type: integer
+      responses:
+        '201':
+          description: 답변 등록 성공
+
+  /answers/{answer_id}:
+    get:
+      tags: [answer]
+      summary: 특정 답변 상세 조회
+      parameters:
+        - in: path
+          name: answer_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 답변 정보 반환
+
+    patch:
+      tags: [answer]
+      summary: 답변 평점 등록/수정
+      parameters:
+        - in: path
+          name: answer_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [satisfaction]
+              properties:
+                satisfaction:
+                  type: integer
+                  description: 답변에 대한 만족도 평점
+                  minimum: 1
+                  maximum: 5
+      responses:
+        '200':
+          description: 평점 등록/수정 성공
