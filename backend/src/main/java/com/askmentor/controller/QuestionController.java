@@ -1,6 +1,7 @@
 package com.askmentor.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import com.askmentor.dto.QuestionWithAnswerResponse;
 import com.askmentor.model.Answer;
 import com.askmentor.model.Question;
 import com.askmentor.service.QuestionService;
+import com.askmentor.service.UserService;
 
 
 @RestController
@@ -22,9 +24,11 @@ import com.askmentor.service.QuestionService;
 public class QuestionController {
 
 	private final QuestionService questionService;
+	private final UserService userService;
 	
-	public QuestionController(QuestionService questionService) {
+	public QuestionController(QuestionService questionService, UserService userService) {
 		this.questionService = questionService;
+		this.userService = userService;
 	}
 
 	@GetMapping("/{user_id}")
@@ -34,9 +38,13 @@ public class QuestionController {
 	}
 
 	@PostMapping("/{user_id}")
-	public ResponseEntity<String> createQuestion(@PathVariable int user_id, @RequestBody QuestionRequest request) {
-		String result = questionService.createQuestion(user_id, request);
-		return ResponseEntity.ok(result);
+	public ResponseEntity<Map<String, String>> createQuestion(@PathVariable int user_id, @RequestBody QuestionRequest request) {
+		String questionResult = questionService.createQuestion(user_id, request);
+		String userUpdateResult = userService.updateQuestionCount(user_id);
+		return ResponseEntity.ok(Map.of(
+			"question", questionResult,
+			"update", userUpdateResult
+		));
 	}
 
 	@GetMapping("/{question_id}")

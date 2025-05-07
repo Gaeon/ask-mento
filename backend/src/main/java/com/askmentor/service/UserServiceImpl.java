@@ -28,4 +28,14 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         return "사용자 비밀번호 수정 성공";
     }
+
+    @Override
+    public String updateQuestionCount(int user_id) {
+        User user = userRepository.findById(user_id).orElseThrow();
+        int questionCount = user.getQuestionCount();
+        questionCount++;
+        user.setQuestionCount(questionCount);
+        userRepository.save(user);
+        return "질문수 업데이트 성공";
+    }
 }

@@ -6,4 +6,5 @@ import com.askmentor.dto.UserUpdateRequest;
 public interface UserService {
     User getUser(int user_id);
     String updateUser(int user_id, UserUpdateRequest request);
+    String updateQuestionCount(int user_id);
 }
