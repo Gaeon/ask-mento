@@ -1,9 +1,12 @@
 package com.askmentor.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Entity
+@Data
 @Table(name = "Question")
 public class Question {
     @Id

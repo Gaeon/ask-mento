@@ -1,4 +1,4 @@
-package com.askmentor.askmentor;
+package com.askmentor;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
