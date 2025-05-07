@@ -1,7 +1,7 @@
 package com.askmentor.service;
 
 import com.askmentor.model.User;
-import com.askmentor.controller.UserController.UserUpdateRequest;
+import com.askmentor.dto.UserUpdateRequest;
 
 public interface UserService {
     User getUser(int user_id);

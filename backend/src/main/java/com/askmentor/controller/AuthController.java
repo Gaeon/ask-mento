@@ -2,34 +2,29 @@ package com.askmentor.controller;
 
 import org.springframework.web.bind.annotation.*;
 
+import com.askmentor.dto.LoginRequest;
+import com.askmentor.model.User;
+import com.askmentor.service.UserServiceImpl;
+
 @RestController
 @RequestMapping("/api")
 public class AuthController {
-    
-    @PostMapping("/login")
-    public String login(@RequestBody LoginRequest loginRequest) {
-        // 로그인 로직 구현
-        return "로그인 성공";
-    }
-    
-    public static class LoginRequest {
-        private int user_id;
-        private String password;
-        
-        public int getUser_id() {
-            return user_id;
-        }
 
-        public void setUser_id(int user_id) {
-            this.user_id = user_id;
-        }
+	private final UserServiceImpl UserServiceImpl;
 
-        public String getPassword() {
-            return password;
-        }
+	public AuthController(UserServiceImpl UserServiceImpl) {
+		this.UserServiceImpl = UserServiceImpl;
+	}
 
-        public void setPassword(String password) {
-            this.password = password;
-        }
-    }
+	@PostMapping("/login")
+	public String login(@RequestBody LoginRequest loginRequest) {
+		User user = UserServiceImpl.getUser(loginRequest.getUser_id());
+		if (user == null) {
+			return "사용자를 찾을 수 없습니다.";
+		}
+		if (!user.getPassword().equals(loginRequest.getPassword())) {
+			return "비밀번호가 일치하지 않습니다.";
+		}
+		return "로그인 성공";
+	}
 }
