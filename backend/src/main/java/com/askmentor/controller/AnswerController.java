@@ -1,13 +1,17 @@
 package com.askmentor.controller;
 
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.askmentor.dto.AnswerRequest;
 import com.askmentor.dto.SatisfactionRequest;
 import com.askmentor.model.Answer;
+import com.askmentor.repository.AnswerRepository;
 import com.askmentor.service.AnswerService;
+import com.askmentor.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,9 +22,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class AnswerController {
 
     private final AnswerService answerService;
+    private final AnswerRepository answerRepository;
+    private final UserService userService;
 
-    public AnswerController(AnswerService answerService) {
+    public AnswerController(AnswerService answerService, AnswerRepository answerRepository, UserService userService) {
         this.answerService = answerService;
+        this.answerRepository = answerRepository;
+        this.userService = userService;
     }
 
     @Operation(summary = "사용자 답변 내역 조회", description = "특정 사용자의 모든 답변 목록을 조회합니다.")
@@ -50,11 +58,11 @@ public class AnswerController {
     public ResponseEntity<Map<String, String>> updateSatisfaction(
             @PathVariable int answer_id,
             @RequestBody SatisfactionRequest request) {
-                Answer answer = answerRepository.finById(answer_id).orElseThorw();
+                Answer answer = answerRepository.findById(answer_id).orElseThrow();
                 int userid = answer.getUserId();
         return ResponseEntity.ok(Map.of(
             "answer", answerService.updateSatisfaction(answer_id, request),
-            "update", userService.updateSatisfaction(userid, request)
+            "update", userService.updateSumSatisfaction(userid, request.getSatisfaction())
         )
         );
     }
