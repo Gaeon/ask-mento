@@ -47,7 +47,7 @@ public class QuestionController {
 		));
 	}
 
-	@GetMapping("/{question_id}")
+	@GetMapping("/detail/{question_id}")
 	public ResponseEntity<QuestionWithAnswerResponse> getQuestionDetail(@PathVariable int question_id) {
 		Question question = questionService.getQuestionDetail(question_id);
 		List<Answer> answers = questionService.getAnswersByQuestionId(question_id);
