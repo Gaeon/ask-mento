@@ -1,5 +1,6 @@
 package com.askmentor.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -44,6 +45,7 @@ public class AnswerServiceImpl implements AnswerService {
         answer.setQuestionId(request.getQuestion_id());        // 질문 ID 설정
         answer.setUserId(user_id);                             // 작성자 ID 설정
         answer.setAnswer(request.getAnswer());                 // 답변 내용 설정
+        answer.setTimestamp(LocalDateTime.now());
         answer.setSatisfaction(request.getSatisfaction());     // 초기 만족도 설정 (선택 사항)
         answerRepository.save(answer);                         // DB에 저장
         

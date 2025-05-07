@@ -1,5 +1,6 @@
 package com.askmentor.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class QuestionServiceImpl implements QuestionService {
         Question question = new Question();
         question.setUserId(user_id);
         question.setQuestion(request.getQuestion());
+        question.setTimestamp(LocalDateTime.now());
         question.setStatus(request.getStatus());
         questionRepository.save(question);
         return "질문 등록 성공";

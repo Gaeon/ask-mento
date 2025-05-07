@@ -32,7 +32,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public String updateQuestionCount(int user_id) {
         User user = userRepository.findById(user_id).orElseThrow();
-        int questionCount = user.getQuestionCount();
+        Integer questionCount = user.getQuestionCount();
+        if (questionCount == null) {
+            questionCount = 0;
+        }
         questionCount++;
         user.setQuestionCount(questionCount);
         userRepository.save(user);
@@ -42,7 +45,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public String updateAnswerCount(int user_id) {
         User user = userRepository.findById(user_id).orElseThrow();
-        int answerCount = user.getAnswerCount();
+        Integer answerCount = user.getAnswerCount();
+        if (answerCount == null) {
+            answerCount = 0;
+        }
         answerCount++;
         user.setAnswerCount(answerCount);
         userRepository.save(user);
@@ -53,7 +59,10 @@ public class UserServiceImpl implements UserService {
     public String updateSumSatisfaction(int user_id, int satisfaction) {
         User user = userRepository.findById(user_id).orElseThrow();
         // 받음
-        int sumSatisfaction = user.getSumSatisfaction();
+        Integer sumSatisfaction = user.getSumSatisfaction();
+        if (sumSatisfaction == null) {
+            sumSatisfaction = 0;
+        }
         sumSatisfaction += satisfaction;
         user.setSumSatisfaction(sumSatisfaction);
         userRepository.save(user);
