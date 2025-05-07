@@ -38,14 +38,19 @@ public class AnswerController {
         return answerService.getUserAnswers(user_id);
     }
 
+
+    
     @Operation(summary = "답변 등록", description = "특정 사용자의 질문에 대한 새로운 답변을 등록합니다.")
     @PostMapping("/{user_id}")
-    public String createAnswer(
-            @PathVariable int user_id,
-            @RequestBody AnswerRequest request) {
-        return answerService.createAnswer(user_id, request);
-    }
-
+    public ResponseEntity<Map<String, String>> createAnser(
+        @PathVariable int user_id,
+        @RequestBody AnswerRequest request) {
+            return ResponseEntity.ok(Map.of(
+                "answer", answerService.createAnswer(user_id, request),
+                "update", userService.updateAnswerCount(user_id)
+            ));
+        }
+    
     @Operation(summary = "특정 답변 상세 조회", description = "특정 답변의 상세 정보를 조회합니다.")
     @GetMapping("/detail/{answer_id}")
     public Answer getAnswerDetail(
