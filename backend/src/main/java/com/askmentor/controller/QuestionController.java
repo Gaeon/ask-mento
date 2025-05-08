@@ -66,5 +66,4 @@ public class QuestionController {
 		List<Map<String, String>> similarQuestions = questionService.searchSimilarQuestions(request);
 		return ResponseEntity.ok(similarQuestions);
 	}
-	
 }

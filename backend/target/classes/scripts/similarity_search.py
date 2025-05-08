@@ -3,9 +3,12 @@ import json
 from sentence_transformers import SentenceTransformer
 import chromadb
 
+# 전역 모델 변수
+model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+
 def check_db_connection():
     try:
-        client = chromadb.PersistentClient(path="./chroma_db")
+        client = chromadb.PersistentClient(path="./Users/gaeon/workspace/ask-mento/backend/src/chroma_db")
         client.heartbeat()  # ChromaDB 연결 상태 확인
         return {"status": "connected"}
     except Exception as e:
@@ -19,10 +22,8 @@ def main():
     query_text = query_data['query']
     print("[LOG] 입력 데이터 파싱 완료", file=sys.stderr)
     
-    # 모델 로드 (SentenceTransformer 사용)
-    print("[LOG] 모델 로드 시작", file=sys.stderr)
-    model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
-    print("[LOG] 모델 로드 완료", file=sys.stderr)
+    # 모델 사용
+    print("[LOG] 모델 사용 시작", file=sys.stderr)
     
     # Chroma DB 연결
     print("[LOG] ChromaDB 연결 시도", file=sys.stderr)

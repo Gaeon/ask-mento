@@ -59,12 +59,13 @@ public class QuestionServiceImpl implements QuestionService {
             )));
             writer.close();
             
-            // 결과 읽기
+            // 결과 읽기 및 실시간 로그 출력
             BufferedReader reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream()));
             String line;
             StringBuilder output = new StringBuilder();
             while ((line = reader.readLine()) != null) {
+                System.out.println("[Python Script] " + line);
                 output.append(line);
             }
             
@@ -112,6 +113,7 @@ public class QuestionServiceImpl implements QuestionService {
                 StringBuilder output = new StringBuilder();
                 String line;
                 while ((line = reader.readLine()) != null) {
+                    System.out.println("[Python Script] " + line);
                     output.append(line);
                 }
 
