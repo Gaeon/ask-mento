@@ -3,12 +3,15 @@ import json
 from sentence_transformers import SentenceTransformer
 import chromadb
 
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 # 전역 모델 변수
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 def check_db_connection():
     try:
-        client = chromadb.PersistentClient(path="./Users/gaeon/workspace/ask-mento/backend/src/chroma_db")
+        client = chromadb.PersistentClient(path="chroma_db")
         client.heartbeat()  # ChromaDB 연결 상태 확인
         return {"status": "connected"}
     except Exception as e:
@@ -19,7 +22,7 @@ def main():
     print("[LOG] 데이터 입력 완료", file=sys.stderr)
     input_query = sys.stdin.read()
     query_data = json.loads(input_query)
-    query_text = query_data['query']
+    query_text = query_data['question']
     print("[LOG] 입력 데이터 파싱 완료", file=sys.stderr)
     
     # 모델 사용
@@ -40,7 +43,7 @@ def main():
     print("[LOG] 유사도 검색 실행", file=sys.stderr)
     result = collection.query(
         query_embeddings=[query_vector],
-        n_results=5
+        n_results=3 
     )
     print(f"[LOG] 검색 결과: {result['ids']}", file=sys.stderr)
 
@@ -59,7 +62,7 @@ if __name__ == "__main__":
             sys.exit(0)
         else:
             result = main()
-            print(json.dumps(result, ensure_ascii=False))
+            print(json.dumps({"similar_question_ids": result}, ensure_ascii=False))  # ✅ 여기 수정!
     except Exception as e:
         print(json.dumps({"error": str(e)}, ensure_ascii=False))
         sys.exit(1)

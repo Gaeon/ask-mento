@@ -7,7 +7,7 @@ import java.io.OutputStreamWriter;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-
+import java.util.stream.Collectors;
 import java.nio.file.Paths;
 
 import org.springframework.stereotype.Service;
@@ -117,49 +117,67 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public List<Map<String, String>> searchSimilarQuestions(Map<String, String> request) {
         try {
-            System.out.println("\u001B[36m[검색 시작] 유사 질문 검색 프로세스 시작\u001B[0m");
-            System.out.println("\u001B[33m[입력 데이터] " + new ObjectMapper().writeValueAsString(request) + "\u001B[0m");
+            String inputQuestion = request.get("question");
+            if (inputQuestion == null || inputQuestion.isBlank()) {
+                throw new IllegalArgumentException("질문 내용이 비어 있습니다.");
+            }
 
-            ProcessBuilder pb = new ProcessBuilder("python3", 
-                    "../resources/scripts/similarity_search.py");
-            pb.redirectErrorStream(true);
-            
+            // ✅ Python 스크립트 경로 (절대 경로 사용)
+            String scriptPath = Paths.get("backend", "src", "main", "resources", "scripts", "similarity_search.py")
+                                    .toAbsolutePath()
+                                    .toString();
+
+            ProcessBuilder pb = new ProcessBuilder("python3", scriptPath);
             Process process = pb.start();
+
+            // ✅ 입력 JSON 전달
             try (
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-
-                System.out.println("\u001B[32m[프로세스 시작] Python 스크립트 실행 시작\u001B[0m");
-
-                writer.write(new ObjectMapper().writeValueAsString(request));
+                BufferedReader stdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()))
+            ) {
+                // JSON 포맷으로 질문 보내기
+                String inputJson = new ObjectMapper().writeValueAsString(Map.of("question", inputQuestion));
+                writer.write(inputJson);
                 writer.flush();
+                writer.close();
 
+                // ✅ stdout 읽기
                 StringBuilder output = new StringBuilder();
                 String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println("[Python Script] " + line);
+                while ((line = stdout.readLine()) != null) {
+                    System.out.println("[Python STDOUT] " + line);
                     output.append(line);
+                }
+
+                // ✅ stderr 로그 확인 (실패 시 원인 추적)
+                StringBuilder errorLog = new StringBuilder();
+                while ((line = stderr.readLine()) != null) {
+                    System.err.println("[Python STDERR] " + line);
+                    errorLog.append(line).append("\n");
                 }
 
                 int exitCode = process.waitFor();
                 if (exitCode != 0) {
-                    throw new RuntimeException("Python script execution failed");
+                    throw new RuntimeException("Python script failed:\n" + errorLog);
                 }
 
-                System.out.println("\u001B[32m[스크립트 출력] " + output.toString() + "\u001B[0m");
+                // ✅ 결과 파싱
+                Map<String, Object> result = new ObjectMapper().readValue(
+                    output.toString(),
+                    new TypeReference<Map<String, Object>>() {}
+                );
 
-                Map<String, Object> result = new ObjectMapper().readValue(output.toString(), new TypeReference<Map<String, Object>>() {});
                 @SuppressWarnings("unchecked")
-                List<String> similarQuestionIds = (List<String>) result.get("similar_question_ids");
+                List<String> similarIds = (List<String>) result.get("similar_question_ids");
 
-                System.out.println("\u001B[36m[검색 완료] 유사 질문 " + similarQuestionIds.size() + "개 찾음\u001B[0m");
-
-                return similarQuestionIds.stream()
-                    .map(id -> Map.of("question_id", id))
-                    .collect(java.util.stream.Collectors.toList());
+                return similarIds.stream()
+                        .map(id -> Map.of("question_id", id))
+                        .collect(Collectors.toList());
             }
+
         } catch (Exception e) {
-            throw new RuntimeException("Error processing similarity search", e);
+            throw new RuntimeException("Error during similarity search", e);
         }
     }
 
