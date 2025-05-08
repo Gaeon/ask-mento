@@ -10,13 +10,14 @@ import java.time.LocalDateTime;
 @Table(name = "questions")
 public class Question {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "question_id")
     private int questionId;
     
     @Column(name = "user_id")
     private int userId;
     
-    @Column(name = "question", length = 300)
+    @Column(name = "question_text", length = 300)
     private String question;
     
     @Column(name = "timestamp")

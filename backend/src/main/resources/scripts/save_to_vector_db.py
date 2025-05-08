@@ -18,7 +18,7 @@ def main():
 	embedding = model.encode(question).tolist()
 
 	# ChromaDB에 저장
-	client = chromadb.PersistentClient(path="./Users/gaeon/workspace/ask-mento/backend/src/chroma_db")
+	client = chromadb.PersistentClient(path="chroma_db")
 	collection = client.get_or_create_collection(name="questions")
 
 	collection.add(

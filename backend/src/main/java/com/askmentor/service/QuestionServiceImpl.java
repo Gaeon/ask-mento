@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import java.nio.file.Paths;
+
 import org.springframework.stereotype.Service;
 
 import com.askmentor.dto.QuestionRequest;
@@ -35,48 +37,70 @@ public class QuestionServiceImpl implements QuestionService {
     }
     
     @Override
-    public String createQuestion(int user_id, QuestionRequest request) {
+    public String createQuestion(int userId, QuestionRequest request) {
+        // 1. DB에 질문 저장
         Question question = new Question();
-        question.setUserId(user_id);
+        question.setUserId(userId);
         question.setQuestion(request.getQuestion());
         question.setTimestamp(LocalDateTime.now());
         question.setStatus(request.getStatus());
         questionRepository.save(question);
-        
-        // 벡터DB에 질문 저장
+
+        System.out.println("😁😁😁   " + question.getQuestionId() + request.getQuestion());
+
+        // 2. 벡터 DB 저장을 위한 Python 실행
         try {
-            ProcessBuilder pb = new ProcessBuilder("python3", 
-                "/Users/gaeon/workspace/ask-mento/backend/src/main/resources/scripts/save_to_vector_db.py");
-            pb.redirectErrorStream(true);
+            // 절대 경로 기준으로 Python 스크립트 경로 설정
+            String scriptPath = Paths.get("backend", "src", "main", "resources", "scripts", "save_to_vector_db.py")
+                         .toAbsolutePath()
+                         .toString();
+
+            ProcessBuilder pb = new ProcessBuilder("python3", scriptPath);
+            pb.redirectErrorStream(false); // stdout/stderr 분리해서 받기
+
             Process process = pb.start();
-            
-            // Python 스크립트에 JSON 입력 전달
-            BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(process.getOutputStream()));
-            writer.write(new ObjectMapper().writeValueAsString(Map.of(
-                "question_id", question.getQuestionId(),
-                "question", request.getQuestion()
-            )));
-            writer.close();
-            
-            // 결과 읽기 및 실시간 로그 출력
-            BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getInputStream()));
-            String line;
-            StringBuilder output = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                System.out.println("[Python Script] " + line);
-                output.append(line);
+
+            // JSON 데이터 Python으로 전달
+            try (BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(process.getOutputStream()))) {
+                String jsonInput = new ObjectMapper().writeValueAsString(Map.of(
+                    "question_id", question.getQuestionId(),
+                    "question", request.getQuestion()
+                ));
+                System.out.println("😁😁😁   " + question.getQuestionId() + request.getQuestion());
+                writer.write(jsonInput);
+                writer.flush();
             }
-            
+
+            // Python stdout
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("[Python STDOUT] " + line);
+                }
+            }
+
+            // Python stderr
+            StringBuilder errorOutput = new StringBuilder();
+            try (BufferedReader errorReader = new BufferedReader(
+                    new InputStreamReader(process.getErrorStream()))) {
+                String line;
+                while ((line = errorReader.readLine()) != null) {
+                    System.err.println("[Python STDERR] " + line);
+                    errorOutput.append(line).append("\n");
+                }
+            }
+
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                throw new RuntimeException("Python script execution failed");
+                throw new RuntimeException("Python script execution failed:\n" + errorOutput);
             }
+
         } catch (Exception e) {
             throw new RuntimeException("Error saving question to vector DB", e);
         }
-        
+
         return "질문 등록 성공";
     }
     
@@ -97,7 +121,7 @@ public class QuestionServiceImpl implements QuestionService {
             System.out.println("\u001B[33m[입력 데이터] " + new ObjectMapper().writeValueAsString(request) + "\u001B[0m");
 
             ProcessBuilder pb = new ProcessBuilder("python3", 
-                    "/Users/gaeon/workspace/ask-mento/backend/src/main/resources/scripts/similarity_search.py");
+                    "../resources/scripts/similarity_search.py");
             pb.redirectErrorStream(true);
             
             Process process = pb.start();

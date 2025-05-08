@@ -19,7 +19,7 @@ public class Answer {
     @Column(name = "user_id")
     private int userId;
     
-    @Column(name = "answer")
+    @Column(name = "answer_text", length = 300)
     private String answer;
     
     @Column(name = "timestamp")
