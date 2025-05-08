@@ -1,0 +1,17 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:10.7
+    container_name: askmentor-db
+    ports:
+      - "3307:3306" #포트를 호스트에 열어 외부 접근 가능하게 함
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: ask_mento_docker #자동으로 생성될 DB 이름
+      MYSQL_USER: dev #접근 계정
+      MYSQL_PASSWORD: 0000
+    volumes:
+      - ./db-init:/docker-entrypoint-initdb.d #여기에 .sql 파일 넣으면 컨테이너 시작 시 자동 실행
+    restart: unless-stopped
