@@ -71,7 +71,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
   strict: true
 })
@@ -80,14 +80,13 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('user');
   
-  if (to.matched.some(record => record.meta.requiresAuth)) {
+  // 기본 경로('/')로 접근 시 무조건 로그인 체크
+  if (to.path === '/' || to.matched.some(record => record.meta.requiresAuth)) {
     if (!isAuthenticated) {
       next({ name: 'LoginPage', query: { redirect: to.fullPath } });
     } else {
       next();
     }
-  } else if (to.name === 'LoginPage' && isAuthenticated) {
-    next({ name: 'QuestionsPage' });
   } else {
     next();
   }
