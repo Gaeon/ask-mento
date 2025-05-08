@@ -1,5 +1,9 @@
 package com.askmentor.controller;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +21,8 @@ import com.askmentor.model.Answer;
 import com.askmentor.model.Question;
 import com.askmentor.service.QuestionService;
 import com.askmentor.service.UserService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @RestController
@@ -54,4 +60,11 @@ public class QuestionController {
 
 		return ResponseEntity.ok(new QuestionWithAnswerResponse(question, answers));
 	}
+
+	@PostMapping("/search")
+	public ResponseEntity<List<Map<String, String>>> searchSimilarQuestions(@RequestBody Map<String, String> request) {
+		List<Map<String, String>> similarQuestions = questionService.searchSimilarQuestions(request);
+		return ResponseEntity.ok(similarQuestions);
+	}
+	
 }
