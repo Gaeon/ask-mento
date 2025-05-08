@@ -107,7 +107,7 @@ const checkSimilarQuestions = async () => {
 const useExistingAnswer = async (selectedQuestion) => {
   try {
     // DB에 질문-답변 쌍 저장
-    await axios.post('/api/questions/reuse', {
+    await axios.post('/api/questions/reuse', { 
       originalQuestionId: selectedQuestion.id,
       newQuestion: question.value
     })
@@ -160,6 +160,7 @@ const clearQuestion = () => {
   question.value = ''
 }
 </script>
+
 <style scoped>
 .search-field :deep(.v-field) {
   border-radius: 10px !important;  /* Increased border radius */

@@ -10,8 +10,8 @@
           <v-card-text class="pt-6">
             <v-form @submit.prevent="handleLogin">
               <v-text-field
-                v-model="credentials.username"
-                label="Username"
+                v-model="credentials.id"
+                label="Id"
                 prepend-inner-icon="mdi-account"
                 variant="outlined"
                 color="primary"
@@ -59,12 +59,14 @@ import axios from 'axios'
 const router = useRouter()
 const showPassword = ref(false)
 const credentials = ref({
-  username: '',
+  id: '',
   password: ''
 })
 
 const authStore = useAuthStore()
 
+    // 🤍수정전
+    /*
 const handleLogin = async () => {
   try {
     const response = await axios.post('http://localhost:8080/api/login', {
@@ -82,13 +84,51 @@ const handleLogin = async () => {
       return
     }
     
+  
     authStore.login(credentials.value)
     router.push('/questions')
   } catch (error) {
     console.error("로그인 실패:", error)
     alert("로그인 중 오류가 발생했습니다.")
   }
-}
+  */
+
+  // 수정후🤍
+  const handleLogin = async () => {
+  try {
+    const response = await axios.post('http://localhost:8080/api/login', {
+      user_id: credentials.value.id,
+      password: credentials.value.password
+    });
+
+    const result = response.data;
+
+    if (result === "사용자를 찾을 수 없습니다.") {
+      alert("사용자를 찾을 수 없습니다.");
+      return;
+    }
+
+    if (result === "비밀번호가 일치하지 않습니다.") {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    if (result.user_id) {
+      localStorage.setItem('user', JSON.stringify(result));
+      authStore.login(result);
+      router.push('/questions');
+    } else {
+      alert("응답에 사용자 정보가 없습니다.");
+    }
+
+  } catch (error) {
+    console.error("로그인 실패:", error);
+    alert("로그인 중 오류가 발생했습니다.");
+  }
+};
+
+
+
 </script>
 
 <style scoped>

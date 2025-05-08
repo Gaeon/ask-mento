@@ -72,17 +72,18 @@ const goBack = () => {
   })
 }
 
+/*
+//🤍수정전
 const submitQuestion = async () => {
   try {
     // Temporarily commented out API call
-    /*
-    const response = await axios.post('/api/questions', {
-      question: editedQuestion.value,
-      mentorId: selectedMentor.value.id,
-      mentorName: selectedMentor.value.team
-    });
-    */
-    
+
+    // const response = await axios.post('/api/questions', {
+    //   question: editedQuestion.value,
+    //   mentorId: selectedMentor.value.id,
+    //   mentorName: selectedMentor.value.team
+    // });
+
     // Navigate directly to my-page
     window.location.href = '/submission-confirmation';
   } catch (error) {
@@ -90,4 +91,35 @@ const submitQuestion = async () => {
     alert('페이지 이동에 문제가 발생했습니다.');
   }
 }
+
+*/
+
+
+//🤍수정후
+const submitQuestion = async () => {
+  try {
+    const userId = JSON.parse(localStorage.getItem('user'))?.user_id;
+    if (!userId) {
+      alert('로그인이 필요합니다.');
+      router.push('/login');
+      return;
+    }
+
+    // 실제 질문 저장 API 호출
+    await axios.post(`/api/questions/${userId}`, {
+      user_id: userId,
+      question: editedQuestion.value,
+      status: 0  // 또는 필요한 값
+      // mentorId: selectedMentor.value.id,
+      // mentorName: selectedMentor.value.team
+    });
+
+    // 성공 시 페이지 이동
+    router.push('/submission-confirmation');
+  } catch (error) {
+    console.error('질문 전송 중 오류:', error);
+    alert('질문 전송에 실패했습니다. 다시 시도해 주세요.');
+  }
+};
+
 </script>

@@ -18,7 +18,6 @@ import com.askmentor.model.Question;
 import com.askmentor.service.QuestionService;
 import com.askmentor.service.UserService;
 
-
 @RestController
 @RequestMapping("/api/questions")
 public class QuestionController {

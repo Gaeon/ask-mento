@@ -7,11 +7,9 @@ export const useAuthStore = defineStore('auth', {
   }),
   
   actions: {
-    login(credentials) {
-      // TODO: Implement actual login API call
-      this.user = { username: credentials.username }
-      this.isAuthenticated = true
-      localStorage.setItem('user', JSON.stringify(this.user))
+    login(user_id) {
+      this.userId = user_id;                 
+      this.isAuthenticated = true;
     },
     
     logout() {
