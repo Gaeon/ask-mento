@@ -3,10 +3,10 @@
     <v-list>
       <div v-for="question in questions" :key="question.id">
         <v-list-item
-          :class="{ 'expandable': question.status === 'review_pending' }"
-          @click="question.status === 'review_pending' && (question.expanded = !question.expanded)"
+          :class="{ 'expandable': true }"
+          @click="handleQuestionClick(question)"
         >
-          <v-list-item-title>{{ question.title }}</v-list-item-title>
+          <v-list-item-title>{{ question.question }}</v-list-item-title>
           <v-list-item-subtitle>
             {{ new Date(question.timestamp).toLocaleString() }}
           </v-list-item-subtitle>
@@ -22,25 +22,38 @@
 
         <v-expand-transition>
           <v-card
-            v-if="question.expanded && question.status === 'review_pending'"
+            v-if="question.expanded"
             flat
             class="pa-4 mt-2"
           >
             <v-card-title>질문</v-card-title>
-            <v-card-text>{{ question.content }}</v-card-text>
+            <v-card-text>{{ question.question }}</v-card-text>
             
             <v-card-title>답변</v-card-title>
             <v-card-text>{{ question.answer }}</v-card-text>
+            
+            <template v-if="question.answers && question.answers.length > 1">
+              <v-card-title>추가 답변</v-card-title>
+              <v-card-text>
+                <div v-for="(answer, index) in question.answers.slice(1)" :key="index">
+                  <v-divider class="my-2"></v-divider>
+                  {{ answer.answer }}
+                </div>
+              </v-card-text>
+            </template>
 
-            <v-card-actions>
+            <v-card-actions v-if="(question.status === 1 || question.status === 2) && (question.answer || (question.answers && question.answers.length > 0))">
               <v-rating
                 v-model="question.rating"
                 color="primary"
                 hover
                 length="5"
+                :readonly="question.status === 2"
+                :model-value="question.status === 2 ? question.answers[0]?.satisfaction : question.rating"
               ></v-rating>
               <v-spacer></v-spacer>
               <v-btn
+                v-if="question.status === 1"
                 color="primary"
                 @click="submitReview(question)"
               >
@@ -55,44 +68,110 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+const emit = defineEmits(['update-question-count'])
 
-const questions = ref([
-  // Sample data - will be replaced with DB data
-  {
-    id: 1,
-    title: '샘플 질문 1',
-    content: '질문 내용...',
-    answer: '답변 내용...',
-    timestamp: new Date(),
-    status: 'review_pending',
-    expanded: false,
-    rating: 0
+const questions = ref([])
+const selectedQuestion = ref(null)
+
+const fetchQuestionDetail = async (questionId) => {
+  try {
+    const response = await fetch(`http://localhost:8080/api/questions/detail/${questionId}`)
+    return await response.json()
+  } catch (error) {
+    console.error('Error fetching question detail:', error)
+    return null
   }
-])
+}
+
+const fetchQuestions = async () => {
+  try {
+    const userId = localStorage.getItem('userId')
+    if (!userId) {
+      console.error('User ID not found in localStorage')
+      return
+    }
+    const response = await fetch(`http://localhost:8080/api/questions/${userId}`)
+    const data = await response.json()
+    questions.value = data.map(q => ({
+      ...q,
+      expanded: false
+    }))
+    emit('update-question-count', questions.value.length)
+  } catch (error) {
+    console.error('Error fetching questions:', error)
+  }
+}
+
+onMounted(() => {
+  fetchQuestions()
+})
 
 const getStatusColor = (status) => {
   switch (status) {
-    case 'pending': return 'warning'
-    case 'review_pending': return 'info'
-    case 'completed': return 'success'
+    case 0: return 'orange'
+    case 1: return 'green'
+    case 2: return 'blue'
     default: return 'grey'
   }
 }
 
 const getStatusText = (status) => {
-  switch (status) {
-    case 'pending': return '답변대기'
-    case 'review_pending': return '리뷰대기'
-    case 'completed': return '완료'
+  switch(status) {
+    case 0: return '대기중'
+    case 1: return '답변 완료'
+    case 2: return '해결됨'
     default: return '알 수 없음'
   }
 }
 
-const submitReview = (question) => {
-  // TODO: Submit review to DB
-  console.log('Submitting review:', question.id, question.rating)
+const submitReview = async (question) => {
+  try {
+    const answerId = question.answers?.[0]?.answerId
+    if (!answerId) {
+      throw new Error('답변 ID를 찾을 수 없습니다.')
+    }
+    const response = await fetch(`http://localhost:8080/api/answers/${answerId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        satisfaction: question.rating
+      })
+    })
+    
+    if (!response.ok) {
+      throw new Error('리뷰 제출에 실패했습니다.')
+    }
+    
+    alert('리뷰가 성공적으로 제출되었습니다!')
+  } catch (error) {
+    console.error('Error submitting review:', error)
+    alert('리뷰 제출 중 오류가 발생했습니다: ' + error.message)
+  }
 }
+
+const handleQuestionClick = async (question) => {
+  question.expanded = !question.expanded
+  if (question.expanded && !question.answer) {
+    const detail = await fetchQuestionDetail(question.questionId || question.id)
+    if (detail) {
+      question.answer = detail.answers[0]?.answer || ''
+      question.answers = detail.answers
+      selectedQuestion.value = detail
+    }
+  }
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  return new Date(dateString).toLocaleString()
+}
+
+onMounted(() => {
+  fetchQuestions()
+})
 </script>
 
 <style scoped>
