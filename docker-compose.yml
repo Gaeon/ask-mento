@@ -4,7 +4,7 @@ version: '3.8'
 services:
   mariadb:
     image: mariadb:10.7
-    container_name: askmentor-db
+    container_name: askmento-db
     ports:
       - "3307:3306" #포트를 호스트에 열어 외부 접근 가능하게 함
     environment:
