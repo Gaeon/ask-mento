@@ -1,5 +1,34 @@
 <template>
   <v-container>
+    <v-dialog v-model="showSuccessDialog" max-width="500">
+      <v-card>
+        <v-card-title class="text-h5 bg-primary text-white pa-4">
+          성공
+        </v-card-title>
+        <v-card-text class="pa-6">
+          {{ successMessage }}
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="showSuccessDialog = false">확인</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    
+    <v-dialog v-model="showErrorDialog" max-width="500">
+      <v-card>
+        <v-card-title class="text-h5 bg-error text-white pa-4">
+          오류
+        </v-card-title>
+        <v-card-text class="pa-6">
+          {{ errorMessage }}
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error" @click="showErrorDialog = false">확인</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-row justify="center">
       <v-col cols="12" md="8">
         <v-card class="mb-6">
@@ -149,6 +178,8 @@ import axios from 'axios'
 const userInfo = ref({
   name: '',
   userId: '',
+  password: '',
+  departmentId: '',
   questionCount: 0,
   answerCount: 0,
   sumSatisfaction: 0,
@@ -163,6 +194,8 @@ const fetchUserData = async () => {
     userInfo.value = {
       name: response.data.name,
       employeeId: response.data.userId.toString(),
+      password: response.data.password || '',
+      departmentId: response.data.departmentId || '',
       questionCount: response.data.questionCount || 0,
       answerCount: response.data.answerCount || 0,
       averageRating: response.data.sumSatisfaction || 0,
@@ -187,6 +220,8 @@ const passwordForm = ref({
 const loading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
+const showSuccessDialog = ref(false)
+const showErrorDialog = ref(false)
 
 const passwordErrors = ref({
   new: '',
@@ -196,6 +231,12 @@ const passwordErrors = ref({
 const validatePassword = () => {
   passwordErrors.value.new = ''
   passwordErrors.value.confirm = ''
+
+  if (!passwordForm.value.current) {
+    errorMessage.value = '현재 비밀번호를 입력해주세요.'
+    showErrorDialog.value = true
+    return
+  }
 
   if (passwordForm.value.new && passwordForm.value.new.length < 8) {
     passwordErrors.value.new = '비밀번호는 8자 이상이어야 합니다.'
@@ -214,16 +255,31 @@ const changePassword = async () => {
   // Validation
   if (!passwordForm.value.current || !passwordForm.value.new || !passwordForm.value.confirm) {
     errorMessage.value = '모든 필드를 입력해주세요.'
+    showErrorDialog.value = true
+    return
+  }
+
+  if (!passwordForm.value.current || passwordForm.value.current !== userInfo.value.password) {
+    errorMessage.value = '현재 비밀번호가 일치하지 않습니다.'
+    showErrorDialog.value = true
+    return
+  }
+
+  if (passwordForm.value.current === passwordForm.value.new) {
+    errorMessage.value = '현재 비밀번호와 새 비밀번호가 동일합니다.'
+    showErrorDialog.value = true
     return
   }
 
   if (passwordForm.value.new !== passwordForm.value.confirm) {
     errorMessage.value = '새 비밀번호가 일치하지 않습니다.'
+    showErrorDialog.value = true
     return
   }
 
   if (passwordForm.value.new.length < 8) {
     errorMessage.value = '새 비밀번호는 8자 이상이어야 합니다.'
+    showErrorDialog.value = true
     return
   }
 
@@ -235,10 +291,14 @@ const changePassword = async () => {
     })
     
     successMessage.value = '비밀번호가 성공적으로 변경되었습니다.'
+    showSuccessDialog.value = true
     passwordForm.value = { current: '', new: '', confirm: '' }
+    await fetchUserData()
   } catch (error) {
     if (error.response?.status === 401) {
       errorMessage.value = '현재 비밀번호가 일치하지 않습니다.'
+    } else if (error.response?.status === 400) {
+      errorMessage.value = error.response.data.message || '비밀번호 변경 요청이 유효하지 않습니다.'
     } else {
       errorMessage.value = '비밀번호 변경 중 오류가 발생했습니다.'
     }
