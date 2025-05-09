@@ -85,7 +85,7 @@ import axios from 'axios'
 
 const router = useRouter()
 const similarQuestionsDialog = ref(null)
-const question = ref('')  // 한 번만 선언
+const question = ref('')
 const loading = ref(false)
 const recentQuestions = ref([])
 
@@ -131,24 +131,16 @@ const submitNewQuestion = async () => {
   }
 }
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (question.value.trim()) {
-    loading.value = true
+    // 질문 저장
+    localStorage.setItem('currentQuestion', question.value);
     
-    // Store the question in localStorage for persistence
-    localStorage.setItem('currentQuestion', question.value)
-    
-    // Use query parameters for consistent navigation
+    // 유사 질문 페이지로 이동 (멘토 추천 과정은 아직 실행하지 않음)
     router.push({
       path: '/similar-questions',
       query: { question: question.value }
-    }).then(() => {
-      console.log('Navigation successful with question:', question.value)
-      loading.value = false
-    }).catch(err => {
-      console.error('Navigation error:', err)
-      loading.value = false
-    })
+    });
   }
 }
 

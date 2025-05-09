@@ -32,15 +32,19 @@ def get_employees_by_department(department_id: str):
         
         result = []
         for row in rows:
-            # 답변 수가 0인 경우 평균 만족도 값 처리
-            if row[2] != 0:
-                avg_satisfaction = row[3]/row[2]
-            else: avg_satisfaction = 0
+            # 답변 수가 0인 경우 또는 None인 경우 평균 만족도 값 처리
+            answer_count = 0 if row[2] is None or row[2] == 0 else row[2]
+            sum_satisfaction = 0 if row[3] is None or row[3] == 0 else row[3]
+            
+            if answer_count == 0:
+                avg_satisfaction = 0
+            else: 
+                avg_satisfaction = sum_satisfaction/answer_count
             
             row_dict = {
                 "user_id": row[0],
                 "name": row[1],
-                "answer_count": row[2],
+                "answer_count": answer_count,  # 수정된 값 사용
                 "avg_satisfaction": avg_satisfaction,
                 "join_year": row[4]
             }
