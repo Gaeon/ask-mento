@@ -50,4 +50,4 @@ async def recommend_mentors(request: QuestionRequest):
 
 # 서버 실행
 if __name__ == "__main__":
-    uvicorn.run("api:app", host="0.0.0.0", port=5000, reload=True)
+    uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)
