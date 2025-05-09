@@ -6,6 +6,7 @@ import chromadb
 # 전역 모델 변수
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
+
 def main():
 	# 입력 데이터 읽기
 	data = json.loads(sys.stdin.read())
