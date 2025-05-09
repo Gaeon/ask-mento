@@ -65,32 +65,14 @@
 import { ref, onMounted } from 'vue'
 const emit = defineEmits(['update-answer-count'])
 
+const countPendingAnswers = (answers) => {
+  return answers.filter(answer => answer.status === 0).length
+}
+
 const questions = ref([])
 const answers = ref([])
 const selectedAnswer = ref(null)
 const loading = ref(false)
-
-// const pendingQuestions = ref([
-//   // Sample data - will be removed later
-//   {
-//     id: 1,
-//     title: '자바스크립트에서 비동기 처리는 어떻게 하나요?',
-//     content: '자바스크립트에서 비동기 처리를 구현하고 싶은데, Promise와 async/await의 차이점이 궁금합니다.',
-//     timestamp: new Date(),
-//     status: 'pending',
-//     expanded: false,
-//     draftAnswer: ''
-//   },
-//   {
-//     id: 2,
-//     title: 'Vue.js와 React의 주요 차이점은?',
-//     content: 'Vue.js와 React를 비교했을 때 가장 큰 차이점과 각각의 장단점이 궁금합니다.',
-//     timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-//     status: 'completed',
-//     expanded: false,
-//     answer: '두 프레임워크의 주요 차이점은...'
-//   }
-// ])
 
 // 1. OnMounted - Mounted 시
 onMounted(() => {
@@ -139,7 +121,8 @@ const fetchAnswers = async () => {
       rating: a.rating || 0
     }))
     
-    emit('update-answer-count', answers.value.length)
+    const pendingCount = countPendingAnswers(answers.value)
+  emit('update-answer-count', answers.value.length, pendingCount)
   } catch (error) {
     console.error('Error fetching answers:', error)
     alert('질문 목록을 불러오는 중 오류가 발생했습니다.')
