@@ -1,24 +1,31 @@
 package com.askmentor.service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.askmentor.dto.AnswerRequest;
 import com.askmentor.dto.SatisfactionRequest;
 import com.askmentor.model.Answer;
+import com.askmentor.model.Question;
 import com.askmentor.repository.AnswerRepository;
+import com.askmentor.repository.QuestionRepository;
 
 
 @Service
 public class AnswerServiceImpl implements AnswerService {
     
     private final AnswerRepository answerRepository;
+    private final QuestionRepository questionRepository;  // 추가: QuestionRepository 의존성 주
 
     // 생성자를 통해 AnswerRepository 의존성 주입
-    public AnswerServiceImpl(AnswerRepository answerRepository) {
+    public AnswerServiceImpl(AnswerRepository answerRepository, QuestionRepository questionRepository) {
         this.answerRepository = answerRepository;
+        this.questionRepository = questionRepository;
     }
 
     /**
@@ -28,8 +35,24 @@ public class AnswerServiceImpl implements AnswerService {
      * @return 해당 사용자가 작성한 모든 답변 리스트
      */
     @Override
-    public List<Answer> getUserAnswers(int user_id) {
-        return answerRepository.findByUserId(user_id);
+    public List<Map<String, Object>> getUserAnswers(int user_id) {
+        List<Answer> answers = answerRepository.findByUserId(user_id);
+        return answers.stream().map(answer -> {
+            Map<String, Object> result = new HashMap<>();
+            result.put("answerId", answer.getAnswerId());
+            result.put("questionId", answer.getQuestionId());
+            result.put("userId", answer.getUserId());
+            result.put("answer", answer.getAnswer());
+            result.put("timestamp", answer.getTimestamp());
+            result.put("satisfaction", answer.getSatisfaction());
+            
+            // Question 정보 조회 및 추가
+            Question question = questionRepository.findById(answer.getQuestionId()).orElseThrow();
+            result.put("question", question.getQuestion());
+            result.put("state", question.getStatus());
+            
+            return result;
+        }).collect(Collectors.toList());
     }
 
     /**
