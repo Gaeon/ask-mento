@@ -63,6 +63,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from 'axios'
 const emit = defineEmits(['update-answer-count'])
 
 const questions = ref([])
@@ -192,10 +193,20 @@ const getStatusText = (status) => {
 }
 
 // 6. 답변입력 안된거는
-const submitAnswer = (question) => {
-  // TODO: Submit answer to DB
-  console.log('Submitting answer:', question.id, question.draftAnswer)
-}
+const submitAnswer = async (question) => {
+  try {
+    const response = await axios.patch(`/api/answers/${question.answerId}`, {
+      answer: question.draftAnswer,
+      satisfaction: null, // 초기에는 null 또는 생략도 가능
+    });
+    console.log('✅ 답변 저장 완료:', response.data);
+    alert('답변이 성공적으로 저장되었습니다!');
+    fetchAnswers();
+  } catch (error) {
+    console.error('❌ 답변 저장 실패:', error);
+    alert('답변 저장 중 오류가 발생했습니다.');
+  }
+};
 
 </script>
 

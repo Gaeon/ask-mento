@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.askmentor.dto.AnswerRequest;
+import com.askmentor.dto.AnswerUpdateRequest;
 import com.askmentor.dto.SatisfactionRequest;
 import com.askmentor.model.Answer;
 import com.askmentor.model.Question;
@@ -73,6 +74,29 @@ public class AnswerServiceImpl implements AnswerService {
         answerRepository.save(answer);                         // DB에 저장
         
         return "답변 등록 성공";
+        
+    }
+
+    @Override
+    public int updateAnswer(int answer_id, AnswerUpdateRequest request) {
+        // 1. 답변 조회
+        Answer answer = answerRepository.findById(answer_id)
+        .orElseThrow(() -> new RuntimeException("답변 없음"));
+
+        // 2. 답변 내용 업데이트
+        answer.setAnswer(request.getAnswer());                 // 답변 내용 설정
+        answer.setTimestamp(LocalDateTime.now());
+        answerRepository.save(answer);                         // DB에 저장
+
+        // 3. 관련 질문 상태 변경 (state = 1)
+        int questionId = answer.getQuestionId();
+        Question question = questionRepository.findById(questionId)
+            .orElseThrow(() -> new RuntimeException("질문 없음"));
+        question.setStatus(1); 
+        questionRepository.save(question);
+        
+        // 4. 사용자 ID 반환
+        return answer.getUserId();
         
     }
 

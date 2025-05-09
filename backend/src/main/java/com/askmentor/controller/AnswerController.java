@@ -4,9 +4,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.askmentor.dto.AnswerRequest;
+import com.askmentor.dto.AnswerUpdateRequest;
 import com.askmentor.dto.SatisfactionRequest;
 import com.askmentor.model.Answer;
 import com.askmentor.repository.AnswerRepository;
@@ -39,15 +44,17 @@ public class AnswerController {
     }
 
 
-    
-    @Operation(summary = "답변 등록", description = "특정 사용자의 질문에 대한 새로운 답변을 등록합니다.")
-    @PatchMapping("/{user_id}")
-    public ResponseEntity<Map<String, String>> createAnser(
-        @PathVariable int user_id,
-        @RequestBody AnswerRequest request) {
+    @Operation(summary = "답변 입력", description = "특정 사용자의 질문에 대한 새로운 답변을 입력합니다.")
+    @PatchMapping("/{answer_id}")
+    public ResponseEntity<Map<String, String>> updateAnswer(
+        @PathVariable int answer_id,
+        @RequestBody AnswerUpdateRequest request) {
+
+            int userId = answerService.updateAnswer(answer_id, request); 
+            
             return ResponseEntity.ok(Map.of(
-                "answer", answerService.createAnswer(user_id, request),
-                "update", userService.updateAnswerCount(user_id)
+                "answer", "답변 수정 완료",
+                "update", userService.updateAnswerCount(userId)
             ));
         }
     
@@ -59,7 +66,7 @@ public class AnswerController {
     }
 
     @Operation(summary = "답변 평점 등록/수정", description = "특정 답변에 대한 만족도를 등록하거나 수정합니다.")
-    @PatchMapping("/{answer_id}")
+    @PatchMapping("/review/{answer_id}")
     public ResponseEntity<Map<String, String>> updateSatisfaction(
             @PathVariable int answer_id,
             @RequestBody SatisfactionRequest request) {

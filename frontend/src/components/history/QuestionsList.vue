@@ -166,7 +166,7 @@ const submitReview = async (question) => {
     if (!answerId) {
       throw new Error('답변 ID를 찾을 수 없습니다.')
     }
-    const response = await fetch(`http://localhost:8080/api/answers/${answerId}`, {
+    const response = await fetch(`http://localhost:8080/api/answers/review/${answerId}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
