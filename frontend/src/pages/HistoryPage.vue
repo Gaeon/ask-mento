@@ -33,11 +33,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import QuestionsList from '../components/history/QuestionsList.vue'
 import AnswersList from '../components/history/AnswersList.vue'
 
-const activeTab = ref('questions')  // Default tab is questions
+const route = useRoute()
+console.log('route.query.tab:', route.query.tab)
+const activeTab = ref(route.query.tab === 'answers' ? 'answers' : 'questions')  // 라우터 쿼리 파라미터 기반 탭 전환
+console.log('activeTab:', activeTab.value)
 const questionCount = ref(0)
 const answerCount = ref(0)
 

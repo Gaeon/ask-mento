@@ -42,17 +42,35 @@
 
             <v-row>
               <v-col cols="12" sm="4">
-                <v-card variant="outlined" class="text-center pa-4">
-                  <div class="text-h4 mb-1">{{ userInfo.questionCount }}</div>
-                  <div class="text-subtitle-1">작성한 질문</div>
-                </v-card>
+                <v-btn
+                  variant="outlined"
+                  class="text-center pa-4"
+                  width="100%"
+                  height="100%"
+                  style="border-radius: 12px;"
+                  @click="$router.push({ name: 'HistoryPage', query: { tab: 'question' } })"
+                >
+                  <div class="d-flex flex-column align-center justify-center" style="width: 100%;">
+                    <div class="text-h4 mb-1">{{ userInfo.questionCount }}</div>
+                    <div class="text-subtitle-1">작성한 질문</div>
+                  </div>
+                </v-btn>
               </v-col>
               
               <v-col cols="12" sm="4">
-                <v-card variant="outlined" class="text-center pa-4">
-                  <div class="text-h4 mb-1">{{ userInfo.answerCount }}</div>
-                  <div class="text-subtitle-1">작성한 답변</div>
-                </v-card>
+                <v-btn
+                  variant="outlined"
+                  class="text-center pa-4"
+                  width="100%"
+                  height="100%"
+                  @click="$router.push({ name: 'HistoryPage', query: { tab: 'answers' } })"
+                  style="border-radius: 12px;"
+                >
+                  <div class="d-flex flex-column align-center justify-center" style="width: 100%;">
+                    <div class="text-h4 mb-1">{{ userInfo.answerCount }}</div>
+                    <div class="text-subtitle-1">작성한 답변</div>
+                  </div>
+                </v-btn>
               </v-col>
               
               <v-col cols="12" sm="4">
