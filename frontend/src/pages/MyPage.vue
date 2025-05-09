@@ -104,7 +104,7 @@
               
               <v-col cols="12" sm="4">
                 <v-card variant="outlined" class="text-center pa-4">
-                  <div class="text-h4 mb-1">{{ userInfo.averageRating }}</div>
+                  <div class="text-h4 mb-1">{{ userInfo.sumSatisfaction }}</div>
                   <div class="text-subtitle-1">평균 만족도</div>
                 </v-card>
               </v-col>
@@ -198,7 +198,7 @@ const fetchUserData = async () => {
       departmentId: response.data.departmentId || '',
       questionCount: response.data.questionCount || 0,
       answerCount: response.data.answerCount || 0,
-      averageRating: response.data.sumSatisfaction || 0,
+      averageRating: response.data.answerCount > 0 ? response.data.sumSatisfaction / response.data.answerCount : 0,
       joinYear: response.data.joinYear || ''
     }
   } catch (error) {
