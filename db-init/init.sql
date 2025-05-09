@@ -6,7 +6,7 @@
 
 CREATE TABLE IF NOT EXISTS departments ( 
   department_id     INT NOT NULL AUTO_INCREMENT,
-  department        VARCHAR(20),
+  department        VARCHAR(50),
   parent_department INT,
   PRIMARY KEY (department_id),
   KEY idx_parent_department (parent_department),
