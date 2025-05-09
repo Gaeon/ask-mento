@@ -26,6 +26,14 @@
                     <v-list-item-title>사번</v-list-item-title>
                     <v-list-item-subtitle>{{ userInfo.employeeId }}</v-list-item-subtitle>
                   </v-list-item>
+
+                  <v-list-item>
+                    <template v-slot:prepend>
+                      <v-icon color="#4CAF50">mdi-calendar</v-icon>
+                    </template>
+                    <v-list-item-title>입사년도</v-list-item-title>
+                    <v-list-item-subtitle>{{ userInfo.joinYear }}</v-list-item-subtitle>
+                  </v-list-item>
                 </v-list>
               </v-col>
             </v-row>
@@ -121,23 +129,27 @@ import axios from 'axios'
 
 // Default user info with sample data
 const userInfo = ref({
-  name: '홍길동',
-  employeeId: 'EMP123456',
-  questionCount: 15,
-  answerCount: 23,
-  averageRating: 4.8
+  name: '',
+  userId: '',
+  questionCount: 0,
+  answerCount: 0,
+  sumSatisfaction: 0,
+  joinYear: ''
 })
 
 const fetchUserData = async () => {
   try {
-    // For development, use mock data if API is not available
-    // When API is ready, uncomment the following:
-    /*
-    const userId = localStorage.getItem('userId') || 'default'
-    const response = await axios.get(`/api/users/${userId}`)
-    userInfo.value = response.data
-    */
-    console.log('User data loaded (mock)')
+    const userData = JSON.parse(localStorage.getItem('user'))
+    const response = await axios.get(`http://localhost:8080/api/users/${userData.user_id}`)
+    
+    userInfo.value = {
+      name: response.data.name,
+      employeeId: response.data.userId.toString(),
+      questionCount: response.data.questionCount || 0,
+      answerCount: response.data.answerCount || 0,
+      averageRating: response.data.sumSatisfaction || 0,
+      joinYear: response.data.joinYear || ''
+    }
   } catch (error) {
     console.error('Failed to fetch user data:', error)
   }
@@ -199,16 +211,10 @@ const changePassword = async () => {
 
   loading.value = true
   try {
-    // Mock API call for now
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // When API is ready, uncomment the following:
-    /*
-    const response = await axios.post('/api/users/change-password', {
-      currentPassword: passwordForm.value.current,
-      newPassword: passwordForm.value.new
+    const userData = JSON.parse(localStorage.getItem('user'))
+    const response = await axios.patch(`http://localhost:8080/api/users/${userData.user_id}`, {
+      password: passwordForm.value.new
     })
-    */
     
     successMessage.value = '비밀번호가 성공적으로 변경되었습니다.'
     passwordForm.value = { current: '', new: '', confirm: '' }
