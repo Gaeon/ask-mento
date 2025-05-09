@@ -47,7 +47,6 @@ public class QuestionServiceImpl implements QuestionService {
         question.setStatus(request.getStatus());
         questionRepository.save(question);
 
-<<<<<<< HEAD
         System.out.println("😁😁😁   " + question.getQuestionId() + request.getQuestion());
         
         // 2. Answers 빈 row 추가
@@ -58,9 +57,7 @@ public class QuestionServiceImpl implements QuestionService {
         answer.setTimestamp(null);                                  
         answer.setSatisfaction(null);                                  
         answerRepository.save(answer);
-=======
         System.out.println("✅ " + question.getQuestionId() + request.getQuestion());
->>>>>>> 79a8abe5e7ad4d796410060e70abcb9d8fb6678d
 
 
         // 3. 벡터 DB 저장을 위한 Python 실행
