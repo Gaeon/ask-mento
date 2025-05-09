@@ -1,6 +1,6 @@
 <template>
-  <v-container class="fill-height">
-    <v-row align="center" justify="center">
+  <v-container class="pt-0">
+    <v-row align="start" justify="center">
       <v-col cols="12" sm="10" md="8" lg="6" class="text-center">
         <v-img
           src="../assets/logo.png"
@@ -8,8 +8,13 @@
           class="mx-auto mb-4"
         ></v-img>
         
-        <h1 class="text-h3 mb-2">Ask anything!</h1>
-        <p class="text-body-1 mb-8">당신의 회사 멘토들에게 무엇이든 물어보세요.</p>
+        
+        <div class="mt-2">
+          <img src="../assets/학사모.png" style="width: 20%; height: auto; margin-top:10%">
+          <h1 class="text-h3 mb-2">Ask anything!</h1>
+          <p class="text-body-1 mb-8">당신의 회사 멘토들에게 무엇이든 물어보세요.</p>
+        </div>
+        
         
         <v-form @submit.prevent="handleSubmit" class="mb-16">
           <v-text-field
