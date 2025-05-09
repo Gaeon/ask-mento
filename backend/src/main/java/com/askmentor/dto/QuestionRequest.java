@@ -5,6 +5,7 @@ public class QuestionRequest {
     private int user_id;
     private String question;
     private Integer status;
+    private Integer answerUserId;
     
     public int getUser_id() {
         return user_id;
@@ -28,6 +29,13 @@ public class QuestionRequest {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getAnswerUserId() {
+        return answerUserId;
+    }
+    public void setAnswererUserId(Integer answerUserId) {
+        this.answerUserId = answerUserId;
     }
 
 }
