@@ -5,7 +5,7 @@
         <v-card class="elevation-12 login-card">
           <div class="text-center pt-6">
             <img src="../assets/logo.png" alt="물어멘토 Logo" class="login-logo" />
-            <h1 class="text-h4 text-primary mt-4">물어멘토</h1>
+            <h1 class="text-h5 text-primary mt-4">회사 생활의 모든 질문, <br><b>물어멘토</b>에서 답을 찾으세요!</h1>
           </div>
           <v-card-text class="pt-6">
             <v-form @submit.prevent="handleLogin">
