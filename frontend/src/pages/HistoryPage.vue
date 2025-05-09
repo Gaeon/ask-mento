@@ -16,7 +16,14 @@
           :class="{ 'bg-primary text-white': activeTab === 'answers' }"
           @click="activeTab = 'answers'"
         >
-          <div class="text-h6">답변 {{ answerCount }}개</div>
+          <div class="text-h6">답변 {{ answerCount }}개
+            <v-badge
+              v-if="pendingAnswerCount > 0"
+              color="red"
+              dot
+              inline
+            ></v-badge>
+          </div>
         </v-card>
       </v-col>
     </v-row>
@@ -46,6 +53,7 @@ const activeTab = ref(route.query.tab === 'answers' ? 'answers' : 'questions')  
 console.log('activeTab:', activeTab.value)
 const questionCount = ref(0)
 const answerCount = ref(0)
+const pendingAnswerCount = ref(0)
 
 // QuestionsList에서 emit된 질문 개수 업데이트
 const handleQuestionCountUpdate = (count) => {
@@ -53,8 +61,9 @@ const handleQuestionCountUpdate = (count) => {
 }
 
 // AnswersList에서 emit된 질문 개수 업데이트
-const handleAnswerCountUpdate = (count) => {
+const handleAnswerCountUpdate = (count, pendingCount) => {
   answerCount.value = count
+  pendingAnswerCount.value = pendingCount || 0
 }
 </script>
 
@@ -65,5 +74,11 @@ const handleAnswerCountUpdate = (count) => {
 }
 .cursor-pointer:hover {
   opacity: 0.9;
+}
+
+.v-badge {
+  position: relative;
+  top: -10px;
+  transform: scale(0.7);
 }
 </style>

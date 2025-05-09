@@ -67,6 +67,16 @@ const similarQuestions = ref([
 
 onMounted(() => {
   currentQuestion.value = route.query.question || ''
+  
+  // 라우터 쿼리에서 유사 질문 데이터 파싱
+  if (route.query.similarQuestions) {
+    try {
+      similarQuestions.value = JSON.parse(route.query.similarQuestions)
+    } catch (e) {
+      console.error('유사 질문 데이터 파싱 오류:', e)
+    }
+  }
+  
   if (!currentQuestion.value) {
     // Handle case when no question is provided
   }
@@ -81,7 +91,7 @@ const findMentor = async () => {
     loading.value = true;
     
     // 에이전트 API 호출
-    const response = await axios.post('http://localhost:5000/api/recommend-mentors', {
+    const response = await axios.post('http://localhost:8000/api/recommend-mentors', {
       question: currentQuestion.value
     });
     

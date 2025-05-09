@@ -144,8 +144,33 @@ const handleSubmit = async () => {
   }
 }
 
-const handleSearch = () => {
-  handleSubmit() // Make both actions do the same thing
+const handleSearch = async () => {
+  if (question.value.trim()) {
+    loading.value = true;
+    try {
+      const response = await axios.post('http://localhost:8080/api/questions/search', {
+        question: question.value
+      });
+      
+      // 유사 질문 페이지로 이동하면서 결과 전달
+      router.push({
+        path: '/similar-questions',
+        query: { 
+          question: question.value,
+          similarQuestions: JSON.stringify(response.data.map(item => ({
+            question: item.question,
+            answer: item.answers,
+            similarity: Math.round(parseFloat(item.similarity_score) * 100)
+          })))
+        }
+      });
+    } catch (error) {
+      console.error('유사 질문 검색 중 오류 발생:', error);
+      alert('유사 질문 검색 중 오류가 발생했습니다.');
+    } finally {
+      loading.value = false;
+    }
+  }
 }
 
 const clearQuestion = () => {

@@ -2,12 +2,16 @@ import sys
 import json
 from sentence_transformers import SentenceTransformer
 import chromadb
+from chromadb.utils import embedding_functions
+
 
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 # 전역 모델 변수
-model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')\
+model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+embed_fn = embedding_functions.SentenceTransformerEmbeddingFunction(model_name='sentence-transformers/all-MiniLM-L6-v2')
+
 
 def check_db_connection():
     try:
