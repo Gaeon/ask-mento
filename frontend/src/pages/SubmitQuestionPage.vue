@@ -51,15 +51,15 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'  // Add this line
+import axios from 'axios'
 
 const route = useRoute()
 const router = useRouter()
-const editedQuestion = ref('')  // Changed from question to editedQuestion
+const editedQuestion = ref('')
 const selectedMentor = ref({})
 
 onMounted(() => {
-  editedQuestion.value = decodeURIComponent(route.query.question || '')
+  editedQuestion.value = route.query.question || ''
   selectedMentor.value = route.query.mentor 
     ? JSON.parse(decodeURIComponent(route.query.mentor))
     : {}
@@ -72,30 +72,6 @@ const goBack = () => {
   })
 }
 
-/*
-//🤍수정전
-const submitQuestion = async () => {
-  try {
-    // Temporarily commented out API call
-
-    // const response = await axios.post('/api/questions', {
-    //   question: editedQuestion.value,
-    //   mentorId: selectedMentor.value.id,
-    //   mentorName: selectedMentor.value.team
-    // });
-
-    // Navigate directly to my-page
-    window.location.href = '/submission-confirmation';
-  } catch (error) {
-    console.error('Navigation error:', error);
-    alert('페이지 이동에 문제가 발생했습니다.');
-  }
-}
-
-*/
-
-
-//🤍수정후
 const submitQuestion = async () => {
   try {
     const userId = JSON.parse(localStorage.getItem('user'))?.user_id;
@@ -109,10 +85,14 @@ const submitQuestion = async () => {
     await axios.post(`/api/questions/${userId}`, {
       user_id: userId,
       question: editedQuestion.value,
-      status: 0,  // 또는 필요한 값
-      answerUserId : selectedMentor.value.id,
-      // mentorName: selectedMentor.value.team
+      status: 0,
+      answerUserId: selectedMentor.value.id,
+      mentorName: selectedMentor.value.team
     });
+
+    // 제출 후 로컬 스토리지 정리
+    localStorage.removeItem('currentQuestion');
+    localStorage.removeItem('recommendedMentors');
 
     // 성공 시 페이지 이동
     router.push('/submission-confirmation');
@@ -121,5 +101,4 @@ const submitQuestion = async () => {
     alert('질문 전송에 실패했습니다. 다시 시도해 주세요.');
   }
 };
-
 </script>

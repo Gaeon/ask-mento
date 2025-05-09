@@ -35,7 +35,7 @@
             <v-btn
               color="white"
               dark
-              @click="navigateToPostQuestion"
+              @click="findMentor"
               class="mt-4"
               size="large"
               style="background-color: #004426 !important;"
@@ -51,10 +51,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 
 const route = useRoute()
 const router = useRouter()
 const currentQuestion = ref('')
+const loading = ref(false)
 const similarQuestions = ref([
   {
     question: '오전 반차는 언제까지 말씀드려야 하나요?',
@@ -68,14 +70,34 @@ onMounted(() => {
   if (!currentQuestion.value) {
     // Handle case when no question is provided
   }
+  
+  // 페이지 로드 시 이전에 저장된 멘토 정보 초기화
+  localStorage.removeItem('recommendedMentors')
 })
 
-const navigateToPostQuestion = () => {
-  router.push({
-    path: '/select-mentor',
-    query: { 
-      question: currentQuestion.value 
-    }
-  })
+// navigateToPostQuestion 함수는 findMentor로 대체
+const findMentor = async () => {
+  try {
+    loading.value = true;
+    
+    // 에이전트 API 호출
+    const response = await axios.post('http://localhost:5000/api/recommend-mentors', {
+      question: currentQuestion.value
+    });
+    
+    // 추천된 멘토 정보 저장
+    localStorage.setItem('recommendedMentors', JSON.stringify(response.data.mentors));
+    
+    // 멘토 선택 페이지로 이동
+    router.push({
+      path: '/select-mentor',
+      query: { question: currentQuestion.value }
+    });
+  } catch (error) {
+    console.error('멘토 추천 중 오류 발생:', error);
+    alert('멘토 추천 중 오류가 발생했습니다. 다시 시도해주세요.');
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
