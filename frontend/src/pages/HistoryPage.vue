@@ -23,7 +23,7 @@
 
     <v-window v-model="activeTab">
       <v-window-item value="questions">
-        <QuestionsList />
+        <QuestionsList @update-question-count="handleQuestionCountUpdate" />
       </v-window-item>
       <v-window-item value="answers">
         <AnswersList />
@@ -40,6 +40,11 @@ import AnswersList from '../components/history/AnswersList.vue'
 const activeTab = ref('questions')  // Default tab is questions
 const questionCount = ref(0)
 const answerCount = ref(0)
+
+// QuestionsList에서 emit된 질문 개수 업데이트
+const handleQuestionCountUpdate = (count) => {
+  questionCount.value = count
+}
 </script>
 
 <style scoped>

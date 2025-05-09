@@ -73,6 +73,7 @@ const emit = defineEmits(['update-question-count'])
 
 const questions = ref([])
 const selectedQuestion = ref(null)
+const loading = ref(false)
 
 const fetchQuestionDetail = async (questionId) => {
   try {
@@ -86,20 +87,54 @@ const fetchQuestionDetail = async (questionId) => {
 
 const fetchQuestions = async () => {
   try {
-    const userId = localStorage.getItem('userId')
-    if (!userId) {
-      console.error('User ID not found in localStorage')
+    const userData = localStorage.getItem('user')
+    if (!userData) {
+      console.error('User data not found in localStorage')
       return
     }
+    
+    let userId
+    try {
+      userId = JSON.parse(userData).user_id
+    } catch (error) {
+      console.error('Error parsing user data:', error)
+      return
+    }
+    
+    if (!userId) {
+      console.error('User ID not found in user data')
+      return
+    }
+
+    
+ 
+    // API 호출 시 loading 상태 추가
+    loading.value = true
+    
     const response = await fetch(`http://localhost:8080/api/questions/${userId}`)
+    if (!response.ok) {
+      throw new Error(`API 요청 실패: ${response.status}`)
+    }
+    
     const data = await response.json()
     questions.value = data.map(q => ({
-      ...q,
-      expanded: false
+      id: q.questionId,
+      questionId: q.questionId,
+      question: q.question,
+      timestamp: q.timestamp,
+      status: q.status,
+      expanded: false,
+      answer: '',
+      answers: [],
+      rating: q.rating || 0
     }))
+    
     emit('update-question-count', questions.value.length)
   } catch (error) {
     console.error('Error fetching questions:', error)
+    alert('질문 목록을 불러오는 중 오류가 발생했습니다.')
+  } finally {
+    loading.value = false
   }
 }
 
