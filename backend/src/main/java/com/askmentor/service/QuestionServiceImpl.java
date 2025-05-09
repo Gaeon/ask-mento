@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,7 +47,7 @@ public class QuestionServiceImpl implements QuestionService {
         question.setStatus(request.getStatus());
         questionRepository.save(question);
 
-        System.out.println("😁😁😁   " + question.getQuestionId() + request.getQuestion());
+        System.out.println("✅ " + question.getQuestionId() + request.getQuestion());
 
         // 2. 벡터 DB 저장을 위한 Python 실행
         try {
@@ -169,11 +170,41 @@ public class QuestionServiceImpl implements QuestionService {
                 );
 
                 @SuppressWarnings("unchecked")
-                List<String> similarIds = (List<String>) result.get("similar_question_ids");
+                List<String> similarIds = (List<String>) result.get("similar_questions");
+                @SuppressWarnings("unchecked")
+                List<Double> similarityScores = (List<Double>) result.get("similarity");
 
-                return similarIds.stream()
-                        .map(id -> Map.of("question_id", id))
-                        .collect(Collectors.toList());
+                if (similarIds.size() != similarityScores.size()) {
+                    throw new RuntimeException("Python script returned mismatched data sizes");
+                }
+
+                List<Map<String, Object>> results = new ArrayList<>();
+                for (int i = 0; i < similarIds.size(); i++) {
+                    results.add(Map.of(
+                        "question_id", similarIds.get(i),
+                        "similarity_score", similarityScores.get(i)
+                    ));
+                }
+
+                // ✅ 질문 ID를 기준으로 질문과 답변 조회
+                List<Map<String, String>> finalResults = new ArrayList<>();
+                for (Map<String, Object> resultMap : results) {
+                    int questionId = Integer.parseInt(resultMap.get("question_id").toString());
+                    Question question = questionRepository.findById(questionId).orElse(null);
+                    List<Answer> answers = answerRepository.findByQuestionId(questionId);
+                    if (question != null) {
+                        Map<String, String> finalResult = Map.of(
+                            "question_id", resultMap.get("question_id").toString(),
+                            "question", question.getQuestion(),
+                            "similarity_score", resultMap.get("similarity_score").toString(),
+                            "answers", answers.stream()
+                                              .map(Answer::getAnswer)
+                                              .collect(Collectors.joining("\n"))
+                        );
+                        finalResults.add(finalResult);
+                    }
+                }
+                return finalResults;
             }
 
         } catch (Exception e) {

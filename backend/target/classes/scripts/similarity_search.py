@@ -7,7 +7,7 @@ import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 # 전역 모델 변수
-model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')\
 
 def check_db_connection():
     try:
@@ -49,10 +49,15 @@ def main():
 
     # 결과 처리
     similar_questions = []
+    similarity_scores = []
     if result['ids']:
         similar_questions = result['ids'][0]
+        similarity_scores = result['distances'][0]
 
-    return similar_questions
+    return {
+        "similar_questions": similar_questions,
+        "similarity": similarity_scores
+    }
 
 if __name__ == "__main__":
     try:
@@ -62,7 +67,7 @@ if __name__ == "__main__":
             sys.exit(0)
         else:
             result = main()
-            print(json.dumps({"similar_question_ids": result}, ensure_ascii=False))  # ✅ 여기 수정!
+            print(json.dumps(result, ensure_ascii=False))
     except Exception as e:
         print(json.dumps({"error": str(e)}, ensure_ascii=False))
         sys.exit(1)
