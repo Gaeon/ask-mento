@@ -47,8 +47,18 @@ public class QuestionServiceImpl implements QuestionService {
         questionRepository.save(question);
 
         System.out.println("😁😁😁   " + question.getQuestionId() + request.getQuestion());
+        
+        // 2. Answers 빈 row 추가
+        Answer answer = new Answer();
+        answer.setQuestionId(question.getQuestionId());                  
+        answer.setUserId(request.getAnswerUserId());                     
+        answer.setAnswer(null);                                         
+        answer.setTimestamp(null);                                  
+        answer.setSatisfaction(null);                                  
+        answerRepository.save(answer);
 
-        // 2. 벡터 DB 저장을 위한 Python 실행
+
+        // 3. 벡터 DB 저장을 위한 Python 실행
         try {
             // 절대 경로 기준으로 Python 스크립트 경로 설정
             String scriptPath = Paths.get("backend", "src", "main", "resources", "scripts", "save_to_vector_db.py")

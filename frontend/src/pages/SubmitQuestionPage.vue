@@ -109,8 +109,8 @@ const submitQuestion = async () => {
     await axios.post(`/api/questions/${userId}`, {
       user_id: userId,
       question: editedQuestion.value,
-      status: 0  // 또는 필요한 값
-      // mentorId: selectedMentor.value.id,
+      status: 0,  // 또는 필요한 값
+      answerUserId : selectedMentor.value.id,
       // mentorName: selectedMentor.value.team
     });
 

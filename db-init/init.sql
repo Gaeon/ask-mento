@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
   password         VARCHAR(20),
   question_count   INT DEFAULT 0,
   answer_count     INT DEFAULT 0,
-  avg_satisfaction FLOAT,
+  sum_satisfaction FLOAT,
   join_year        DATE,
   PRIMARY KEY (user_id),
   KEY idx_user_department (department_id),
