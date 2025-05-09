@@ -22,12 +22,14 @@
     </v-row>
 
     <v-window v-model="activeTab">
-      <v-window-item value="questions">
-        <QuestionsList @update-question-count="handleQuestionCountUpdate" />
-      </v-window-item>
-      <v-window-item value="answers">
-        <AnswersList />
-      </v-window-item>
+      <QuestionsList
+        v-show="activeTab === 'questions'"
+        @update-question-count="handleQuestionCountUpdate"
+      />
+      <AnswersList
+        v-show="activeTab === 'answers'"
+        @update-answer-count="handleAnswerCountUpdate"
+      />
     </v-window>
   </v-container>
 </template>

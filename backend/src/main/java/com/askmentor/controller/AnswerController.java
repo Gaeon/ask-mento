@@ -41,7 +41,7 @@ public class AnswerController {
 
     
     @Operation(summary = "답변 등록", description = "특정 사용자의 질문에 대한 새로운 답변을 등록합니다.")
-    @PostMapping("/{user_id}")
+    @PatchMapping("/{user_id}")
     public ResponseEntity<Map<String, String>> createAnser(
         @PathVariable int user_id,
         @RequestBody AnswerRequest request) {

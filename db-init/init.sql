@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS answers (
   question_id   INT NOT NULL,
   user_id       INT NOT NULL,
   answer_text   TEXT,
-  timestamp     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  timestamp     TIMESTAMP,
   satisfaction  INT,
   PRIMARY KEY (answer_id),
   KEY idx_answer_question (question_id),

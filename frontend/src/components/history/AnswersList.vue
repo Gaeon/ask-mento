@@ -1,49 +1,48 @@
 <template>
   <v-card class="mt-4">
     <v-list>
-      <!-- <div v-for="question in pendingQuestions" :key="question.id"> -->
-      <div v-for="answer in answers" :key="answer.id">
+      <div v-for="answer in answers" :key="answer.answerId">
         <v-list-item
           :class="{ 'expandable': true }"
           @click="handleAnswerClick(answer)"
         >
-          <v-list-item-title>{{ answer.answer }}</v-list-item-title>
+          <v-list-item-title>Q. {{ answer.question }}</v-list-item-title>
+          <v-list-item-title>A. {{ answer.answer  }}</v-list-item-title>
+          
           <v-list-item-subtitle>
-            {{ new Date(answer.timestamp).toLocaleString() }}
+            {{ answer.timestamp ? new Date(answer.timestamp).toLocaleString() : '' }}
           </v-list-item-subtitle>
           <template v-slot:append>
             <v-chip
-              :color="getStatusColor(question.status)"
+              :color="getStatusColor(answer.status)"
               size="small"
             >
-              {{ getStatusText(question.status) }}
+              {{ getStatusText(answer.status) }}
             </v-chip>
           </template>
         </v-list-item>
 
         <v-expand-transition>
           <v-card
-            v-if="question.expanded"
+            v-if="answer.expanded"
             flat
             class="pa-4 mt-2"
           >
             <v-card-title>질문</v-card-title>
             <v-card-text>{{ answer.question }}</v-card-text>
-
-            <v-card-title>답변</v-card-title>
-            <v-card-text>{{ answer.answer }}</v-card-text>
+          
             
-            <template v-if="question.status === 'pending'">
+            <template v-if="answer.status === 0">
               <v-card-title>답변 작성</v-card-title>
               <v-card-text>
                 <v-textarea
-                  v-model="question.draftAnswer"
+                  v-model="answer.draftAnswer"
                   label="답변을 작성해주세요"
                   rows="4"
                 ></v-textarea>
                 <v-btn
                   color="primary"
-                  @click="submitAnswer(question)"
+                  @click="submitAnswer(answer)"
                   class="mt-2"
                 >
                   답변 제출
@@ -53,7 +52,7 @@
 
             <template v-else>
               <v-card-title>답변</v-card-title>
-              <v-card-text>{{ question.answer }}</v-card-text>
+              <v-card-text>{{ answer.answer }}</v-card-text>
             </template>
           </v-card>
         </v-expand-transition>
@@ -133,10 +132,10 @@ const fetchAnswers = async () => {
       answerId: a.answerId,
       answer: a.answer,
       timestamp: a.timestamp,
-      status: a.status,
+      status: a.state,
       expanded: false,
-      question: '',
-      questions: [],
+      question: a.question,
+      draftAnswer: '',
       rating: a.rating || 0
     }))
     
@@ -150,7 +149,7 @@ const fetchAnswers = async () => {
 }
 
 // 3. 질문이 눌리면
-const handleQuestionClick = async (question) => {
+const handleAnswerClick = async (question) => {
   question.expanded = !question.expanded
   if (question.expanded && !question.answer) {
     const detail = await fetchAnswerDetail(question.questionId || question.id)
@@ -173,28 +172,31 @@ const fetchQuestionDetail = async (questionId) => {
   }
 }
 
+// 5. 답변 상태표시
 const getStatusColor = (status) => {
   switch (status) {
-    case 'pending': return 'warning'
-    case 'review_pending': return 'info'
-    case 'completed': return 'success'
+    case 0: return 'orange'
+    case 1: return 'green'
+    case 2: return 'blue'
     default: return 'grey'
   }
 }
 
 const getStatusText = (status) => {
-  switch (status) {
-    case 'pending': return '답변대기'
-    case 'review_pending': return '리뷰대기'
-    case 'completed': return '완료'
+  switch(status) {
+    case 0: return '대기중'
+    case 1: return '답변 완료'
+    case 2: return '해결됨'
     default: return '알 수 없음'
   }
 }
 
+// 6. 답변입력 안된거는
 const submitAnswer = (question) => {
   // TODO: Submit answer to DB
   console.log('Submitting answer:', question.id, question.draftAnswer)
 }
+
 </script>
 
 <style scoped>
