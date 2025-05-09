@@ -45,6 +45,11 @@ const answerCount = ref(0)
 const handleQuestionCountUpdate = (count) => {
   questionCount.value = count
 }
+
+// AnswersList에서 emit된 질문 개수 업데이트
+const handleAnswerCountUpdate = (count) => {
+  answerCount.value = count
+}
 </script>
 
 <style scoped>

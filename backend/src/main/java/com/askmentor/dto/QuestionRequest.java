@@ -34,7 +34,7 @@ public class QuestionRequest {
     public Integer getAnswerUserId() {
         return answerUserId;
     }
-    public void setAnswererUserId(Integer answerUserId) {
+    public void setAnswerUserId(Integer answerUserId) {
         this.answerUserId = answerUserId;
     }
 

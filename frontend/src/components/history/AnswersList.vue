@@ -1,14 +1,15 @@
 <template>
   <v-card class="mt-4">
     <v-list>
-      <div v-for="question in pendingQuestions" :key="question.id">
+      <!-- <div v-for="question in pendingQuestions" :key="question.id"> -->
+      <div v-for="answer in answers" :key="answer.id">
         <v-list-item
           :class="{ 'expandable': true }"
-          @click="question.expanded = !question.expanded"
+          @click="handleAnswerClick(answer)"
         >
-          <v-list-item-title>{{ question.title }}</v-list-item-title>
+          <v-list-item-title>{{ answer.answer }}</v-list-item-title>
           <v-list-item-subtitle>
-            {{ new Date(question.timestamp).toLocaleString() }}
+            {{ new Date(answer.timestamp).toLocaleString() }}
           </v-list-item-subtitle>
           <template v-slot:append>
             <v-chip
@@ -27,7 +28,10 @@
             class="pa-4 mt-2"
           >
             <v-card-title>질문</v-card-title>
-            <v-card-text>{{ question.content }}</v-card-text>
+            <v-card-text>{{ answer.question }}</v-card-text>
+
+            <v-card-title>답변</v-card-title>
+            <v-card-text>{{ answer.answer }}</v-card-text>
             
             <template v-if="question.status === 'pending'">
               <v-card-title>답변 작성</v-card-title>
@@ -59,29 +63,115 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+const emit = defineEmits(['update-answer-count'])
 
-const pendingQuestions = ref([
-  // Sample data - will be removed later
-  {
-    id: 1,
-    title: '자바스크립트에서 비동기 처리는 어떻게 하나요?',
-    content: '자바스크립트에서 비동기 처리를 구현하고 싶은데, Promise와 async/await의 차이점이 궁금합니다.',
-    timestamp: new Date(),
-    status: 'pending',
-    expanded: false,
-    draftAnswer: ''
-  },
-  {
-    id: 2,
-    title: 'Vue.js와 React의 주요 차이점은?',
-    content: 'Vue.js와 React를 비교했을 때 가장 큰 차이점과 각각의 장단점이 궁금합니다.',
-    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    status: 'completed',
-    expanded: false,
-    answer: '두 프레임워크의 주요 차이점은...'
+const questions = ref([])
+const answers = ref([])
+const selectedAnswer = ref(null)
+const loading = ref(false)
+
+// const pendingQuestions = ref([
+//   // Sample data - will be removed later
+//   {
+//     id: 1,
+//     title: '자바스크립트에서 비동기 처리는 어떻게 하나요?',
+//     content: '자바스크립트에서 비동기 처리를 구현하고 싶은데, Promise와 async/await의 차이점이 궁금합니다.',
+//     timestamp: new Date(),
+//     status: 'pending',
+//     expanded: false,
+//     draftAnswer: ''
+//   },
+//   {
+//     id: 2,
+//     title: 'Vue.js와 React의 주요 차이점은?',
+//     content: 'Vue.js와 React를 비교했을 때 가장 큰 차이점과 각각의 장단점이 궁금합니다.',
+//     timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
+//     status: 'completed',
+//     expanded: false,
+//     answer: '두 프레임워크의 주요 차이점은...'
+//   }
+// ])
+
+// 1. OnMounted - Mounted 시
+onMounted(() => {
+  fetchAnswers()
+})
+
+// 2. Answers 보여주기
+const fetchAnswers = async () => {
+  try {
+    // 2-1. 에러처리
+    const userData = localStorage.getItem('user')
+    if (!userData) {
+      console.error('User data not found in localStorage')
+      return
+    }
+    let userId
+    try {
+      userId = JSON.parse(userData).user_id
+    } catch (error) {
+      console.error('Error parsing user data:', error)
+      return
+    }
+    if (!userId) {
+      console.error('User ID not found in user data')
+      return
+    }
+
+    // 2-2. API 호출 시 loading 상태 추가
+    loading.value = true
+    
+    const response = await fetch(`/api/answers/${userId}`)
+    if (!response.ok) {
+      throw new Error(`API 요청 실패: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    answers.value = data.map(a => ({
+      id: a.questionId,
+      answerId: a.answerId,
+      answer: a.answer,
+      timestamp: a.timestamp,
+      status: a.status,
+      expanded: false,
+      question: '',
+      questions: [],
+      rating: a.rating || 0
+    }))
+    
+    emit('update-answer-count', answers.value.length)
+  } catch (error) {
+    console.error('Error fetching answers:', error)
+    alert('질문 목록을 불러오는 중 오류가 발생했습니다.')
+  } finally {
+    loading.value = false
   }
-])
+}
+
+// 3. 질문이 눌리면
+const handleQuestionClick = async (question) => {
+  question.expanded = !question.expanded
+  if (question.expanded && !question.answer) {
+    const detail = await fetchAnswerDetail(question.questionId || question.id)
+    if (detail) {
+      question.answer = detail.answers[0]?.answer || ''
+      question.answers = detail.answers
+      selectedQuestion.value = detail
+    }
+  }
+}
+
+// 4. 세부 내용 보여주기
+const fetchQuestionDetail = async (questionId) => {
+  try {
+    const response = await fetch(`/api/questions/detail/${questionId}`)
+    return await response.json()
+  } catch (error) {
+    console.error('Error fetching question detail:', error)
+    return null
+  }
+}
 
 const getStatusColor = (status) => {
   switch (status) {
