@@ -44,7 +44,7 @@ public class QuestionServiceImpl implements QuestionService {
         question.setUserId(userId);
         question.setQuestion(request.getQuestion());
         question.setTimestamp(LocalDateTime.now());
-        question.setStatus(request.getStatus());
+        question.setStatus(request.getStatus() != null ? request.getStatus() : 0);
         questionRepository.save(question);
 
         System.out.println("😁😁😁   " + question.getQuestionId() + request.getQuestion());

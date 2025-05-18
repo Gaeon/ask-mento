@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sk031-ask-mento
+  namespace: skala-practice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sk031-ask-mento
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '8081'
+        prometheus.io/path: '/actuator/prometheus'
+        update: e57cdcf9a8dec62f786adea9f000cd9c
+      labels:
+        app: sk031-ask-mento
+    spec:
+      serviceAccountName: default
+      containers:
+      - name: ask-mento
+        image: amdp-registry.skala-ai.com/skala25a/sk031-ask-mento:1.0.0
+        imagePullPolicy: Always
+        env:
+        - name: LOGGING_LEVEL
+          value: DEBUG
+        - name: USER_NAME
+          value: sk031
+        - name: NAMESPACE
+          value: skala-practice

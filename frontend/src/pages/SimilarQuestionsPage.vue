@@ -21,7 +21,7 @@
                 <v-card-title class="d-flex justify-space-between align-center">
                   <span>Q: {{ item.question }}</span>
                   <v-chip color="primary" size="small">
-                    유사도: {{ item.similarity }}%
+                    유사도: {{ 100 - item.similarity }}%
                   </v-chip>
                 </v-card-title>
                 <v-card-text>
